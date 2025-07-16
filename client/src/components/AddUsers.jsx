@@ -3,6 +3,7 @@ import "./addUser.css";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
+
 const REACT_APP_API_URL = "http://localhost:4000";
 
 const AddUser = () => {
@@ -16,8 +17,39 @@ const AddUser = () => {
     address: "",
   });
 
+  const [errors, setErrors] = useState({});
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setErrors({ ...errors, [e.target.name]: "" });
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Name must not contain numbers
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required.";
+    } else if (!/^[A-Za-z\s]+$/.test(formData.name)) {
+      newErrors.name = "Name must only contain alphabets.";
+    }
+
+    // Email format validation
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required.";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Enter a valid email address.";
+    }
+
+    // Address must contain letters (not just numbers)
+    if (!formData.address.trim()) {
+      newErrors.address = "Address is required.";
+    } else if (/^\d+$/.test(formData.address)) {
+      newErrors.address = "Address must contain letters too.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   useEffect(() => {
@@ -27,7 +59,6 @@ const AddUser = () => {
         .then((response) => {
           const { name, email, address } = response.data;
           setFormData({ name, email, address });
-        //   toast.success("User data loaded", { position: "bottom-left" });
         })
         .catch((error) => {
           console.error("Fetch error:", error);
@@ -38,11 +69,12 @@ const AddUser = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
 
     if (isEditMode) {
       axios
         .put(`${REACT_APP_API_URL}/api/updateUser/user/${id}`, formData)
-        .then((response) => {
+        .then(() => {
           toast.success("User updated successfully!", { position: "bottom-left" });
           navigate("/");
         })
@@ -53,7 +85,7 @@ const AddUser = () => {
     } else {
       axios
         .post(`${REACT_APP_API_URL}/api/user`, formData)
-        .then((response) => {
+        .then(() => {
           toast.success("User added successfully!", { position: "bottom-left" });
           navigate("/");
         })
@@ -80,8 +112,8 @@ const AddUser = () => {
               placeholder="Enter full name"
               value={formData.name}
               onChange={handleChange}
-              required
             />
+            {errors.name && <p className="error-text">{errors.name}</p>}
           </div>
 
           <div className="input-group">
@@ -92,8 +124,8 @@ const AddUser = () => {
               placeholder="Enter email address"
               value={formData.email}
               onChange={handleChange}
-              required
             />
+            {errors.email && <p className="error-text">{errors.email}</p>}
           </div>
 
           <div className="input-group">
@@ -104,8 +136,8 @@ const AddUser = () => {
               placeholder="Enter residential address"
               value={formData.address}
               onChange={handleChange}
-              required
             />
+            {errors.address && <p className="error-text">{errors.address}</p>}
           </div>
 
           <button

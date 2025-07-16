@@ -10,7 +10,7 @@
 }
 
 .form-card {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.32);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 18px;
@@ -100,6 +100,12 @@
     gap:5px;
     align-items: center;
 }
+.error-text {
+  color: red;
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
 
 /* ===== Responsive ===== */
 @media (max-width: 480px) {
